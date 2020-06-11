@@ -293,8 +293,8 @@ export default {
         this.form.avatar =
           "http://127.0.0.1:5000/upload/shop/" + this.form.avatar;
         this.form.pics.forEach(i => {
-          this.imgArr.push({ url: "http://127.0.0.1:5000/upload/shop/" + i });
-          this.pics.push(i);
+          this.imgArr.push({ url: "http://127.0.0.1:5000/upload/shop/" + i }); //渲染店铺图片拼接地址
+          this.pics.push(i); //店铺上传图片的默认地址  不带地址的
         });
       });
     }
