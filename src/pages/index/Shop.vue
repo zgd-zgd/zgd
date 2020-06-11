@@ -49,29 +49,21 @@
           ></i>
         </el-upload>
       </el-form-item>
+
       <el-form-item label="店铺图片">
-        <img
-          v-for="i in picsimg"
-          :key="i"
-          :src="i"
-          alt=""
-          width="120"
-          height="120"
-        >
-      </el-form-item>
-      <el-form-item label="修改图片">
         <el-upload
           :action="action"
           list-type="picture-card"
           :on-success="handlePictureCardPreview"
           :on-remove="handleRemove"
+          :file-list="imgArr"
         >
           <i class="el-icon-plus"></i>
         </el-upload>
         <el-dialog :visible.sync="dialogVisible">
           <img
             width="100%"
-            :src="form.pics"
+            :src="imgArr"
             alt=""
           >
         </el-dialog>
@@ -170,6 +162,7 @@ import { API_SHOP_INFO, API_SHOP_EDIT } from "@/api/apis";
 export default {
   data() {
     return {
+      imgArr: [], //渲染店铺图片
       form: {
         name: "",
         bulletin: "",
@@ -184,13 +177,14 @@ export default {
         date: "",
         minPrice: 0
       },
-      //店铺头像
+      //店铺头像 渲染的jpg
       imageUrl: "",
       //店铺图片
       dialogVisible: false,
       dialogVisible1: false,
+      //上传店铺图片的数组
       pics: [],
-      picsimg: [],
+      //上传头像的jpg
       img: "",
       //营业时间
       // date: [new Date(2016, 9, 10, 8, 40), new Date(2016, 9, 10, 9, 40)],
@@ -199,6 +193,7 @@ export default {
     };
   },
   methods: {
+    //修改店铺信息
     onSubmit() {
       let {
         id,
@@ -212,15 +207,40 @@ export default {
         supports,
         date
       } = this.form;
+      if (
+        !(
+          id ||
+          name ||
+          bulletin ||
+          deliveryPrice ||
+          deliveryTime ||
+          description ||
+          score ||
+          sellCount ||
+          supports
+        )
+      ) {
+        this.$message({
+          showClose: true,
+          message: "修改失败，填写信息！！！",
+          type: "error"
+        });
+        return;
+      }
+      //活动多选转换
       supports = JSON.stringify(supports);
+      //时间转换
       date = JSON.stringify(date);
-      this.pics = JSON.stringify(this.pics);
-      this.imageUrl = this.imageUrl == "" ? this.img : this.imageUrl;
+      // 店铺图片转换
+      let pics = JSON.stringify(this.pics);
+
+      //店铺头像 如xxxxx.jpg
+      let imageUrl = this.imageUrl == "" ? this.img : this.imageUrl;
       API_SHOP_EDIT(
         id,
         name,
         bulletin,
-        this.imageUrl,
+        imageUrl,
         deliveryPrice,
         deliveryTime,
         description,
@@ -228,7 +248,7 @@ export default {
         sellCount,
         supports,
         date,
-        this.pics
+        pics
       ).then(res => {
         console.log(res);
         if (res.data.code == 0) {
@@ -237,7 +257,6 @@ export default {
             message: "恭喜你，修改成功",
             type: "success"
           });
-          window.location.reload();
         } else {
           this.$message({
             showClose: true,
@@ -255,22 +274,27 @@ export default {
       this.imageUrl = res.imgUrl;
     },
     //店铺图片
+    //移除图片时触发
     handleRemove(file) {
-      this.pics.splice(this.pics.indexOf(file.imgUrl), 1);
+      //移除图片时，删除要上传图片数组中的相同图片
+      this.pics.splice(this.pics.indexOf(file.url.slice(34)), 1);
     },
+    //图片上传成功时触发
     handlePictureCardPreview(file) {
-      this.form.pics = file.imgUrl;
-      this.dialogVisible1 = true;
-      this.pics.push(file.imgUrl);
+      this.pics.push(file.imgUrl); //像上传图片的数组中添加
     },
     info() {
       API_SHOP_INFO().then(res => {
+        //数据赋值 渲染界面
         this.form = res.data.data;
+        //默认头像
         this.img = this.form.avatar;
+        //拼接头像地址
         this.form.avatar =
           "http://127.0.0.1:5000/upload/shop/" + this.form.avatar;
-        this.form.pics.forEach(item => {
-          this.picsimg.push("http://127.0.0.1:5000/upload/shop/" + item);
+        this.form.pics.forEach(i => {
+          this.imgArr.push({ url: "http://127.0.0.1:5000/upload/shop/" + i });
+          this.pics.push(i);
         });
       });
     }

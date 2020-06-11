@@ -169,6 +169,7 @@
             :on-preview="handlePictureCardPreview"
             :on-remove="handleRemove"
             :on-success="success_img"
+            :file-list="imgArr"
             ref="upload"
           >
             <i class="el-icon-plus"></i>
@@ -177,7 +178,7 @@
           <el-dialog :visible.sync="dialogVisible1">
             <img
               width="100%"
-              :src="imgUrl"
+              :src="imgArr"
               alt=""
             >
           </el-dialog>
@@ -217,6 +218,8 @@ import {
 export default {
   data() {
     return {
+      //imgArr:多张图片数组
+      imgArr: [],
       tableData: [],
       currentPage: 1,
       pageSize: 5,
@@ -243,13 +246,15 @@ export default {
   methods: {
     cancel() {
       this.dialogVisible = false;
-      this.$refs.upload.clearFiles();
+      this.imgArr = [];
     },
     //确认框（是否退出模态框）
     handleClose(done) {
       this.$confirm("确认关闭？")
         .then(() => {
           done();
+          this.imgArr = [];
+          this.img = [];
         })
         .catch(() => {});
     },
@@ -297,10 +302,6 @@ export default {
 
     //确定修改商品
     GoodsEdit() {
-      if (this.img.length == 0) {
-        this.$message.error("请上传图片哦!!!");
-        return;
-      }
       let { name, category, price, goodsDesc, id } = this.form;
       API_GOODS_EDIT(name, category, price, this.img, goodsDesc, id).then(
         res => {
@@ -310,9 +311,9 @@ export default {
               type: "success"
             });
             this.dialogVisible = false;
-            this.$refs.upload.clearFiles();
             this.img = [];
             this.goodsList(this.currentPage);
+            this.imgArr = [];
           }
         }
       );
@@ -325,22 +326,31 @@ export default {
     },
 
     //图片
+    //移除图片触发
     handleRemove(file) {
-      // console.log(file.response.imgUrl);当移除时返回的jpg
-      this.img.splice(this.img.indexOf(file.response.imgUrl), 1);
+      // 当移除时返回的jpg; 删除图片
+      this.img.splice(this.img.indexOf(file.url.slice(44)), 1);
     },
+    // 文件上传时
     handlePictureCardPreview(file) {
       this.imgUrl = file.url;
       this.dialogVisible1 = true;
     },
+    //上传成功后触发
     success_img(res) {
-      // console.log(res.imgUrl); //需要上传到后台的参数
+      // console.log(res); //需要上传到后台的参数
       this.img.push(res.imgUrl);
     },
+    //点击编辑时触发
     handleEdit(row) {
       this.form = row;
       //显示模态框
       this.dialogVisible = true;
+      //渲染图片编辑时
+      this.form.imgUrl.forEach(i => {
+        this.imgArr.push({ url: i });
+        this.img.push(i.slice(44)); //得到最初的12333.jpg这中图片
+      });
     },
     //转换时间
     switchTimeFormat(time) {
