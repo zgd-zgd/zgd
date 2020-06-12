@@ -65,7 +65,7 @@ export default {
   },
   methods: {
     onSubmit() {
-      console.log(this.value1);
+      this.ordertotal();
     },
     //渲染报表
     ordertotal() {
@@ -73,7 +73,6 @@ export default {
       var myChart = echarts.init(document.getElementById("echarts_box"));
       myChart.showLoading();
       API_ORDER_ORDERTOTAL(JSON.stringify(this.value1)).then(res => {
-        console.log(res.data.data);
         let dateArr = []; //下单时间
         let moneyArr = []; //下单金额
         res.data.data.forEach(item => {
@@ -82,28 +81,16 @@ export default {
         });
         let option = {
           title: {
-            text: "订单统计"
+            text: "订单金额"
+          },
+          legend: {
+            data: ["订单金额"]
           },
           tooltip: {
             trigger: "axis"
           },
-          legend: {
-            data: ["金额数据"]
-          },
-          grid: {
-            left: "3%",
-            right: "4%",
-            bottom: "3%",
-            containLabel: true
-          },
-          toolbox: {
-            feature: {
-              saveAsImage: {}
-            }
-          },
           xAxis: {
             type: "category",
-            boundaryGap: false,
             data: dateArr
           },
           yAxis: {
@@ -111,10 +98,13 @@ export default {
           },
           series: [
             {
-              name: "金额数据",
-              type: "line",
-              stack: "总量",
-              data: moneyArr
+              name: "订单金额",
+              data: moneyArr,
+              type: "bar",
+              showBackground: true,
+              backgroundStyle: {
+                color: "rgba(220, 220, 220, 0.8)"
+              }
             }
           ]
         };

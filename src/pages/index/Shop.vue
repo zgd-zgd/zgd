@@ -6,7 +6,6 @@
       class="top"
     >
       <span>店铺管理</span>
-      <el-button type="primary">保存</el-button>
     </div>
 
     <el-form
@@ -38,7 +37,7 @@
         >
           <img
             v-if="form.avatar"
-            :src="form.avatar"
+            :src="shopimg+form.avatar"
             class="avatar"
             width="120"
             height="120"
@@ -110,20 +109,9 @@
           style="width:300px"
         >
           <el-checkbox
-            label="在线支付满28减5"
-            name="type"
-          ></el-checkbox>
-          <el-checkbox
-            label="VC无限橙果汁全场8折"
-            name="type"
-          ></el-checkbox>
-          <el-checkbox
-            label="单人精彩套餐"
-            name="type"
-          ></el-checkbox>
-          <el-checkbox
-            label="特价饮品8折抢购"
-            name="type"
+            v-for="i in supports"
+            :key="i"
+            :label="i"
           ></el-checkbox>
         </el-checkbox-group>
       </el-form-item>
@@ -158,99 +146,37 @@
 </template>
 
 <script>
-import { API_SHOP_INFO, API_SHOP_EDIT } from "@/api/apis";
+import { API_SHOP_INFO, API_SHOP_EDIT, SHOP_IP, SHOP_IMG } from "@/api/apis";
 export default {
   data() {
     return {
-      imgArr: [], //渲染店铺图片
       form: {
-        name: "",
-        bulletin: "",
-        avatar: "",
-        deliveryPrice: "",
-        deliveryTime: "",
-        description: "",
-        score: "",
-        sellCount: "",
-        supports: [],
-        pics: "",
-        date: "",
-        minPrice: 0
+        supports: []
       },
-      //店铺头像 渲染的jpg
-      imageUrl: "",
+      imgArr: [],
+      supports: [
+        "单人精彩套餐",
+        "特价饮品8折抢购",
+        "VC无限橙果汁全场8折",
+        "在线支付满28减5"
+      ],
       //店铺图片
       dialogVisible: false,
       dialogVisible1: false,
-      //上传店铺图片的数组
-      pics: [],
-      //上传头像的jpg
-      img: "",
-      //营业时间
-      // date: [new Date(2016, 9, 10, 8, 40), new Date(2016, 9, 10, 9, 40)],
-      // action: "http://172.16.4.200:5000/goods/goods_img_upload"
-      action: "http://127.0.0.1:5000/shop/upload"
+      //店铺上传图片的地址
+      action: SHOP_IP,
+      // 渲染图片地址
+      shopimg: SHOP_IMG
     };
   },
   methods: {
     //修改店铺信息
     onSubmit() {
-      let {
-        id,
-        name,
-        bulletin,
-        deliveryPrice,
-        deliveryTime,
-        description,
-        score,
-        sellCount,
-        supports,
-        date
-      } = this.form;
-      if (
-        !(
-          id ||
-          name ||
-          bulletin ||
-          deliveryPrice ||
-          deliveryTime ||
-          description ||
-          score ||
-          sellCount ||
-          supports
-        )
-      ) {
-        this.$message({
-          showClose: true,
-          message: "修改失败，填写信息！！！",
-          type: "error"
-        });
-        return;
-      }
-      //活动多选转换
-      supports = JSON.stringify(supports);
-      //时间转换
-      date = JSON.stringify(date);
-      // 店铺图片转换
-      let pics = JSON.stringify(this.pics);
-
-      //店铺头像 如xxxxx.jpg
-      let imageUrl = this.imageUrl == "" ? this.img : this.imageUrl;
-      API_SHOP_EDIT(
-        id,
-        name,
-        bulletin,
-        imageUrl,
-        deliveryPrice,
-        deliveryTime,
-        description,
-        score,
-        sellCount,
-        supports,
-        date,
-        pics
-      ).then(res => {
-        console.log(res);
+      let shopObj = { ...this.form };
+      shopObj.pics = JSON.stringify(shopObj.pics);
+      shopObj.date = JSON.stringify(shopObj.date);
+      shopObj.supports = JSON.stringify(shopObj.supports);
+      API_SHOP_EDIT(shopObj).then(res => {
         if (res.data.code == 0) {
           this.$message({
             showClose: true,
@@ -264,38 +190,36 @@ export default {
             type: "error"
           });
         }
-        this.pics = [];
       });
     },
 
     //店铺头像
-    handleAvatarSuccess(res, file) {
-      this.form.avatar = URL.createObjectURL(file.raw);
-      this.imageUrl = res.imgUrl;
+    handleAvatarSuccess(res) {
+      this.form.avatar = res.imgUrl;
     },
     //店铺图片
     //移除图片时触发
     handleRemove(file) {
       //移除图片时，删除要上传图片数组中的相同图片
-      this.pics.splice(this.pics.indexOf(file.url.slice(34)), 1);
+      let imgurl = !file.response
+        ? file.url.substring(file.url.lastIndexOf("/") + 1) //移除原始图片
+        : file.response.imgUrl; //移除新加的图片
+      this.form.pics.splice(this.form.pics.indexOf(imgurl), 1);
     },
     //图片上传成功时触发
     handlePictureCardPreview(file) {
-      this.pics.push(file.imgUrl); //像上传图片的数组中添加
+      //像上传图片的数组中添加
+      this.form.pics.push(file.imgUrl);
     },
+    //渲染页面数据
     info() {
       API_SHOP_INFO().then(res => {
+        //渲染店铺图片
+        this.imgArr = res.data.data.pics.map(i => {
+          return { url: this.shopimg + i };
+        });
         //数据赋值 渲染界面
         this.form = res.data.data;
-        //默认头像
-        this.img = this.form.avatar;
-        //拼接头像地址
-        this.form.avatar =
-          "http://127.0.0.1:5000/upload/shop/" + this.form.avatar;
-        this.form.pics.forEach(i => {
-          this.imgArr.push({ url: "http://127.0.0.1:5000/upload/shop/" + i }); //渲染店铺图片拼接地址
-          this.pics.push(i); //店铺上传图片的默认地址  不带地址的
-        });
       });
     }
   },
@@ -314,7 +238,7 @@ export default {
   }
 
   .input {
-    width: 350px;
+    width: 450px;
   }
   .avatar-uploader .el-upload {
     border: 1px dashed #d9d9d9;

@@ -1,7 +1,7 @@
 <template>
   <div class="login">
     <div class="login_conent">
-      <p>天涯后台管理系统</p>
+      <p>天天管理系统</p>
       <el-form
         :model="ruleForm"
         status-icon

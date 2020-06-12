@@ -38,15 +38,14 @@
 </template>
 
 <script>
-import { API_ACCOUNT } from "@/api/apis";
+import { API_ACCOUNT, HEAD_IMG } from "@/api/apis";
 export default {
   data() {
     return {
       list: {},
       imageUrl: "",
       // 上传头像路径
-      // action: "http://172.16.4.200:5000/users/avatar_upload"
-      action: "http://127.0.0.1:5000/users/avatar_upload"
+      action: HEAD_IMG
     };
   },
   methods: {
@@ -70,6 +69,22 @@ export default {
         this.$message.error("上传头像图片大小不能超过 2MB!");
       }
       return isJPG && isLt2M;
+    },
+    //转换时间
+    switchTimeFormat(time) {
+      const dateTime = new Date(time);
+      const year = dateTime.getFullYear();
+      const month = dateTime.getMonth() + 1;
+      const date = dateTime.getDate();
+      const hour = dateTime.getHours();
+      const minute = dateTime.getMinutes();
+      const second = dateTime.getSeconds();
+      return `${year}-${this.addZero(month)}-${this.addZero(
+        date
+      )} ${this.addZero(hour)}:${this.addZero(minute)}:${this.addZero(second)}`;
+    },
+    addZero(v) {
+      return v < 10 ? "0" + v : v;
     }
   },
   created() {
@@ -77,6 +92,7 @@ export default {
     API_ACCOUNT(localStorage.getItem("id")).then(res => {
       this.list = res.data.accountInfo;
       this.imageUrl = this.list.imgUrl;
+      this.list.ctime = this.addZero(this.switchTimeFormat(this.list.ctime));
     });
   }
 };

@@ -115,7 +115,7 @@
         <el-table-column
           fixed="right"
           label="操作"
-          width="100"
+          width="280"
         >
           <template slot-scope="scope">
             <el-button
@@ -279,8 +279,11 @@ export default {
       orderState: "",
       // 表格数据
       tableData: [],
+      //当前页
       currentPage: 1,
+      // 每页条数
       pageSize: 5,
+      //总条数
       total: 0,
       //模态框
       dialogVisible: false,
@@ -308,30 +311,8 @@ export default {
         return;
       } else {
         //编辑订单
-        let {
-          id,
-          orderNo,
-          orderTime,
-          phone,
-          consignee,
-          deliverAddress,
-          deliveryTime,
-          remarks,
-          orderAmount,
-          orderState
-        } = this.form;
-        API_ORDER_EDIT(
-          id,
-          orderNo,
-          orderTime,
-          phone,
-          consignee,
-          deliverAddress,
-          deliveryTime,
-          remarks,
-          orderAmount,
-          orderState
-        ).then(res => {
+        let orderlist = { ...this.form };
+        API_ORDER_EDIT(orderlist).then(res => {
           if (res.data.code == 0) {
             this.$message({
               message: "恭喜你，修改订单成功",

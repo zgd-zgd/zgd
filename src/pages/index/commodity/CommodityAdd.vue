@@ -77,7 +77,7 @@
 </template>
 
 <script>
-import { API_COMMODITY_CATEGORIES, API_GOODS_ADD } from "@/api/apis";
+import { API_COMMODITY_CATEGORIES, API_GOODS_ADD, GOODS_IMG } from "@/api/apis";
 export default {
   data() {
     return {
@@ -92,7 +92,7 @@ export default {
       cateList: [],
       //
       // action: "http://172.16.4.200:5000/goods/goods_img_upload"
-      action: "http://127.0.0.1:5000/goods/goods_img_upload"
+      action: GOODS_IMG
     };
   },
   methods: {

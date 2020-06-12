@@ -161,6 +161,7 @@ export default {
 .order {
   #box-card {
     height: 400px;
+    padding: 30px;
   }
   .Time {
     margin: 0 16px 20px;

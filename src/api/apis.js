@@ -1,9 +1,22 @@
 import axios from 'axios'
 
 //服务器地址
-// axios.defaults.baseURL = "http://172.16.4.200:5000"  //教师IP
-axios.defaults.baseURL = "http://127.0.0.1:5000/"// 本地
-// 需改商品编辑 商品添加 头像上传
+const IP = "http://127.0.0.1:5000/"
+
+axios.defaults.baseURL = IP// 本地
+
+//店铺上传图片地址
+export const SHOP_IP = IP + "shop/upload"
+
+//渲染店铺图片的地址
+export const SHOP_IMG = IP + "upload/shop/"
+
+//上传头像地址
+export const HEAD_IMG = IP + "users/avatar_upload"
+
+//商品图片上传地址
+export const GOODS_IMG = IP + "goods/goods_img_upload"
+
 
 /* API_LOGIN：登录接口 
    account：用户名
@@ -181,7 +194,7 @@ export const API_ORDER_SEARCH = (currentPage, pageSize, orderNo, consignee, phon
 /* 
 API_ORDER_EDIT:编辑订单
  */
-export const API_ORDER_EDIT = (id, orderNo, orderTime, phone, consignee, deliverAddress, deliveryTime, remarks, orderAmount, orderState) => axios.post('/order/edit', { id, orderNo, orderTime, phone, consignee, deliverAddress, deliveryTime, remarks, orderAmount, orderState })
+export const API_ORDER_EDIT = (param) => axios.post('/order/edit', param)
 
 
 /* API_SHOP_INFO:店铺详情
@@ -192,9 +205,7 @@ export const API_SHOP_INFO = () => axios.get('/shop/info')
 /*
 API_SHOP_EDIT:编辑店铺信息
  */
-export const API_SHOP_EDIT = (id, name, bulletin, avatar, deliveryPrice, deliveryTime, description, score, sellCount, supports, date, pics) => axios.post('/shop/edit', { id, name, bulletin, avatar, deliveryPrice, deliveryTime, description, score, sellCount, supports, date, pics })
-
-
+export const API_SHOP_EDIT = (param) => axios.post('/shop/edit', param)
 
 
 

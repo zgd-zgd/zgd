@@ -166,7 +166,6 @@
           <el-upload
             :action="action"
             list-type="picture-card"
-            :on-preview="handlePictureCardPreview"
             :on-remove="handleRemove"
             :on-success="success_img"
             :file-list="imgArr"
@@ -213,7 +212,8 @@ import {
   API_GOODS_LIST,
   API_GOODS_DEL,
   API_GOODS_EDIT,
-  API_COMMODITY_CATEGORIES
+  API_COMMODITY_CATEGORIES,
+  GOODS_IMG
 } from "@/api/apis";
 export default {
   data() {
@@ -237,8 +237,7 @@ export default {
       //商品类别
       cateList: [],
       //上传商品路径
-      // action: "http://172.16.4.200:5000/goods/goods_img_upload"
-      action: "http://127.0.0.1:5000/goods/goods_img_upload",
+      action: GOODS_IMG,
       //img 需要上传到编辑的图片
       img: []
     };
@@ -247,6 +246,8 @@ export default {
     cancel() {
       this.dialogVisible = false;
       this.imgArr = [];
+      this.form.imgUrl = [];
+      this.img = [];
     },
     //确认框（是否退出模态框）
     handleClose(done) {
@@ -328,13 +329,11 @@ export default {
     //图片
     //移除图片触发
     handleRemove(file) {
-      // 当移除时返回的jpg; 删除图片
-      this.img.splice(this.img.indexOf(file.url.slice(44)), 1);
-    },
-    // 文件上传时
-    handlePictureCardPreview(file) {
-      this.imgUrl = file.url;
-      this.dialogVisible1 = true;
+      //移除图片时，删除要上传图片数组中的相同图片
+      let imgurl = !file.response
+        ? file.url.substring(file.url.lastIndexOf("/") + 1) //移除原始图片
+        : file.response.imgUrl; //移除新加的图片
+      this.img.splice(this.img.indexOf(imgurl), 1);
     },
     //上传成功后触发
     success_img(res) {
@@ -343,7 +342,7 @@ export default {
     },
     //点击编辑时触发
     handleEdit(row) {
-      this.form = row;
+      this.form = { ...row };
       //显示模态框
       this.dialogVisible = true;
       //渲染图片编辑时
@@ -351,6 +350,7 @@ export default {
         this.imgArr.push({ url: i });
         this.img.push(i.slice(44)); //得到最初的12333.jpg这中图片
       });
+      this.catelist();
     },
     //转换时间
     switchTimeFormat(time) {

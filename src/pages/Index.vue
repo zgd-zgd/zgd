@@ -231,7 +231,7 @@ export default {
             //当二级子菜单中导航路径==当前hash值时执行
             if (children.index == val) {
               //想面包屑数组中加新元素（替换）
-              this.crumbsList.splice(1, 1, children.title);
+              this.crumbsList.splice(0, 2,item.title, children.title);
             }
           });
         }
@@ -247,7 +247,7 @@ export default {
         if (item.children) {
           for (let children of item.children) {
             if (children.index == val) {
-              this.crumbsList.splice(1, 1, children.title);
+              this.crumbsList.splice(0, 2, item.title, children.title);
               return;
             }
           }
@@ -338,7 +338,7 @@ export default {
     }
   }
   .title {
-    font-size: 20px;
+    font-size: 24px;
     text-indent: 1em;
     img {
       width: 40px;
@@ -349,7 +349,7 @@ export default {
     align-items: center;
   }
   .home_right {
-    background: rgb(226, 225, 225);
+    background-color: rgba(24, 1, 1, 0.74);
     .el-header.home_right_header {
       height: 100px;
       background: url("../assets/images/06.jpg") no-repeat;
@@ -364,11 +364,12 @@ export default {
           width: 50px;
           height: 50px;
           border-radius: 50%;
-          margin-left: 10px;
+          margin-left: 26px;
         }
       }
       .colorFFF {
         color: #fff;
+        font-size: 24px;
       }
     }
   }
